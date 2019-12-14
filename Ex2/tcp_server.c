@@ -25,12 +25,19 @@ void soma(int client_fd, int* dados);
 void media(int client_fd, int* dados);
 int isNumber(char* string);
 
-int main() {
+int main(int argc, char *argv[]) {
+	int max, port;
 	int fd, client;
 	struct sockaddr_in addr, client_addr;
 	int client_addr_size;
 	char s[50];
 	//ip[20];
+	 if (argc != 3) {
+    	printf("server <port> <max clientes>\n");
+    	exit(-1);
+ 	}
+ 	max = agrv[2];
+ 	port = argv[1];
 
 	bzero((void *) &addr, sizeof(addr));
 	addr.sin_family = AF_INET;

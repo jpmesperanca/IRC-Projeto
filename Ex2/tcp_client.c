@@ -24,19 +24,19 @@ int main(int argc, char *argv[]) {
   struct sockaddr_in addr;
   struct hostent *hostPtr;
 
-  if (argc != 3) {
-    	printf("cliente <host> <port>\n");
-    	exit(-1);
+  if (argc != 5) {
+      printf("cliente  <proxy> <host> <port> <protocol>\n");
+      exit(-1);
   }
 
-  strcpy(endServer, argv[1]);
+  strcpy(endServer, argv[2]);
   if ((hostPtr = gethostbyname(endServer)) == 0)
     	erro("Nao consegui obter endereço");
 
   bzero((void *) &addr, sizeof(addr));
   addr.sin_family = AF_INET;
   addr.sin_addr.s_addr = ((struct in_addr *)(hostPtr->h_addr))->s_addr;
-  addr.sin_port = htons((short) atoi(argv[2]));
+  addr.sin_port = htons((short) atoi(argv[3]));
 
   if((fd = socket(AF_INET,SOCK_STREAM,0)) == -1)
 	   erro("socket");
