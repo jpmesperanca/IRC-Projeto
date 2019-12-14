@@ -15,7 +15,7 @@
 #include <sys/wait.h>
 
 #define SERVER_PORT     9000
-#define BUF_SIZE	1024
+#define BUF_SIZE	10240
 
 void process_client(int fd);
 void erro(char *msg);
@@ -184,8 +184,8 @@ void trasnferTCP(int client_fd, char* file, int encryption){
 
 	while(1){
 
-		memset(buffer, 0, sizeof(buffer));
-		aux = fread(buffer, BUF_SIZE, 1, f);
+		//memset(buffer, 0, sizeof(buffer));
+		aux = fread(buffer, BUF_SIZE-1, 1, f);
  		write(client_fd, buffer, strlen(buffer));
 
  		memset(buffer, 0, sizeof(buffer));
