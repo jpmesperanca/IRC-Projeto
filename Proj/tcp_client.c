@@ -12,7 +12,7 @@
 #include <unistd.h>
 #include <netdb.h>
 
-#define BUF_SIZE	10240
+#define BUF_SIZE	1024
 
 void erro(char *msg);
 void process_server(int server_fd);
@@ -134,25 +134,13 @@ void receiveTCP(int server_fd){
 
 	f = fopen(dir, "wb");
 
-	write(server_fd, "check", 6);
-
 	while (1){
 
-		memset(buffer, 0, sizeof(buffer));
-		nread = read(server_fd, buffer, BUF_SIZE-1);
-		//buffer[nread] = '\0';
+		nread = read(server_fd, buffer, BUF_SIZE);
+		fwrite(buffer,nread,1,f); 
 
-		if (strcmp(buffer, "end") == 0)
-			break;
-
-		else{
-
-			fwrite(buffer,strlen(buffer),1,f); 
-			write(server_fd, "check", 6);
-		}
-		
-		fflush(stdout);
-		fflush(stdin);
+		if (nread < BUF_SIZE)
+			break;	
 	}
 
 	fclose(f);

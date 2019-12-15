@@ -14,8 +14,8 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-#define SERVER_PORT     9000
-#define BUF_SIZE	10240
+#define SERVER_PORT     9001
+#define BUF_SIZE	1024
 
 void process_client(int fd);
 void erro(char *msg);
@@ -60,7 +60,7 @@ int main() {
 
 void process_client(int client_fd)
 {
-	int nread, correct;
+	int nread;
 	char buffer[BUF_SIZE];
 
 	while(1){
@@ -149,7 +149,7 @@ int processDownload(int client_fd, char* buffer){
 
 	write(client_fd, "0", 2);
 	
-	memset(buffer, 0, sizeof(buffer));
+	//memset(buffer, 0, sizeof(buffer));
 	nread = read(client_fd, buffer, BUF_SIZE-1);
 	buffer[nread] = '\0';
 
@@ -167,42 +167,40 @@ void trasnferTCP(int client_fd, char* file, int encryption){
 
 	char buffer[BUF_SIZE];
 	char dir[2*BUF_SIZE];
-	int nread, aux;
+	int aux;
 
 	puts(file);
 	write(client_fd, file, strlen(file) + 1);
 
 	sprintf(dir, "./Downloadables/%s", file);
 	FILE* f = fopen(dir, "rb");
-
+/*
 	memset(buffer, 0, sizeof(buffer));
 	nread = read(client_fd, buffer, BUF_SIZE-1);
 	//buffer[nread] = '\0';
 
 	if (strcmp(buffer, "check") != 0)
-		exit(1);
+		exit(1);*/
 
 	while(1){
 
 		//memset(buffer, 0, sizeof(buffer));
-		aux = fread(buffer, BUF_SIZE-1, 1, f);
- 		write(client_fd, buffer, strlen(buffer));
+		aux = fread(buffer, 1, BUF_SIZE, f);
 
- 		memset(buffer, 0, sizeof(buffer));
-		nread = read(client_fd, buffer, BUF_SIZE-1);
-		buffer[nread] = '\0';
+		if (aux == 0)
+			break;
+
+ 		write(client_fd, buffer, aux);
+
+ /*		//memset(buffer, 0, sizeof(buffer));
+		nread = read(client_fd, buffer, BUF_SIZE);
+		//buffer[nread] = '\0';
 		
 		if (strcmp(buffer, "check") != 0)
 			exit(1);
-
-		if (aux != 1)
-			break;
-
-		fflush(stdout);
-		fflush(stdin);
-
+*/
 	}
-	write(client_fd, "end", 4);
+	//write(client_fd, "end", 4);
 	fclose(f);
 	printf("End of transfer\n");
 }
