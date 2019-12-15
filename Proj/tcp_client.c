@@ -19,15 +19,21 @@ void process_server(int server_fd);
 void readingFiles(int server_fd);
 void receiveTCP(int server_fd);
 
+int protocolo = 0; //0->TCP, 1->UDP
+
 int main(int argc, char *argv[]) {
 
 	char endServer[100];
 	int fd;
 	struct sockaddr_in addr;
 	struct hostent *hostPtr;
+	/*//UDP
+	int fd_udp;
+	struct sockaddr_in socket_client_udp;
+	//---*/
 
-	if (argc != 3) {
-		printf("cliente <host> <port> \n");
+	if (argc != 4) {
+		printf("cliente <proxy> <host> <port> \n");
 		exit(-1);
 	}
 
@@ -39,15 +45,35 @@ int main(int argc, char *argv[]) {
 	bzero((void *) &addr, sizeof(addr));
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = ((struct in_addr *)(hostPtr->h_addr))->s_addr;
-	addr.sin_port = htons((short) atoi(argv[2]));
+	addr.sin_port = htons((short) atoi(argv[3]));
+
+	/*//UDP
+
+	if((fd_udp=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
+	{
+		erro("Erro na criação do socket");
+	}
+
+	socket_client_udp.sin_family = AF_INET;
+	socket_client_udp.sin_port = htons(PORT);
+	socket_client_udp.sin_addr.s_addr = htonl(INADDR_ANY);
+
+	//Associa o socket à informação de endereço
+	if(bind(fd_udp,(struct sockaddr)&socket_client_udp, sizeof(socket_client_udp)) == -1){
+		erro("Erro no bind");
+	}
+
+	//END OF UDP*/
 
 	if((fd = socket(AF_INET,SOCK_STREAM,0)) == -1)
 		erro("socket");
 	if( connect(fd,(struct sockaddr *)&addr,sizeof (addr)) < 0)
 		erro("Connect");
 
+	write(fd, argv[2] ,strlen(argv[2]));
 	process_server(fd);
 
+	//close(fd_udp);
 	close(fd);
 	exit(0);
 }
@@ -61,7 +87,7 @@ void process_server(int server_fd){
 
 	char buffer[BUF_SIZE];
 	int nread;
-
+	
 	while(1){
 
 		memset(buffer, 0, sizeof(buffer));
@@ -85,7 +111,6 @@ void process_server(int server_fd){
 			buffer[nread] = '\0';
 
 			if (strcmp(buffer,"0") == 0){
-				write(server_fd, "check", 6);
 				receiveTCP(server_fd);
 			}
 		}
